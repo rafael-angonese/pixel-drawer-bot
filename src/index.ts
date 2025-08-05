@@ -43,6 +43,7 @@ const drawPixelArt = async (pixelArt: PixelArt) => {
             page,
             colorIndex: pixel.color
         });
+        await new Promise(r => setTimeout(r, 300));
 
         // Calculate pixel position on canvas (multiply by 10 since each pixel is 10x10)
         const pixelX = canvasBox.x + (pixel.x * 10);
@@ -52,11 +53,36 @@ const drawPixelArt = async (pixelArt: PixelArt) => {
 
         await page.mouse.click(pixelX, pixelY);
         console.log(`✓ Drew pixel at (${pixel.x}, ${pixel.y}) with color ${pixel.color}`);
+        await new Promise(r => setTimeout(r, 300));
     }
 
     await confirmPaint(page)
     // await browser.close();
 }
 
-  
-drawPixelArt(heartPixelArt);
+
+import { imageToPixelArt, saveProcessedImage } from './image-to-pixelart';
+const teste = async () => {
+
+    const pixelArt = await imageToPixelArt({
+        imagePath: './assets/teste.png',
+        maxWidth: 141,
+        maxHeight: 79,
+        dithering: true
+    });
+
+    console.log(pixelArt)
+
+    await saveProcessedImage(
+        './assets/teste.png',
+        './output/preview.png',
+        141,
+        79
+    );
+
+    drawPixelArt(pixelArt);
+}
+
+teste()
+
+// drawPixelArt(heartPixelArt);
