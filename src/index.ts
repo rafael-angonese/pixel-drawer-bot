@@ -70,8 +70,8 @@ const drawPixelArt = async (pixelArt: PixelArt) => {
     console.log('Waiting for paint button...');
     await new Promise(r => setTimeout(r, 3000));
 
-    await page.waitForSelector('button.btn.btn-primary.btn-lg.sm\\:btn-xl.relative.z-30');
-    const paintButton = await page.$('button.btn.btn-primary.btn-lg.sm\\:btn-xl.relative.z-30');
+    await page.waitForSelector('button.btn.btn-primary.btn-lg.sm\\:btn-xl.relative');
+    const paintButton = await page.$('button.btn.btn-primary.btn-lg.sm\\:btn-xl.relative');
     
     if (paintButton) {
         await paintButton.click();
@@ -147,6 +147,16 @@ const drawPixelArt = async (pixelArt: PixelArt) => {
         } else {
             console.log('Canvas not found');
         }
+    }
+    
+    // Click paint button again after finishing
+    console.log('Drawing finished, clicking paint button again...');
+    // await new Promise(r => setTimeout(r, 1000));
+    
+    const paintButtonAfter = await page.$('button.btn.btn-primary.btn-lg.sm\\:btn-xl.relative');
+    if (paintButtonAfter) {
+        await paintButtonAfter.click();
+        console.log('Paint button clicked again successfully!');
     }
     
     // await browser.close();
