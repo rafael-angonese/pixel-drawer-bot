@@ -5,21 +5,29 @@ import { getCanvas } from './get-canvas';
 import { imageToPixelArt, savePixelArtToJson } from './image-to-pixelart';
 import { openPaintPalletStart } from './paint-button-start';
 import { selectColor } from './select-color';
-import { setAuth } from './set-auth';
+import { getChargesCount, setAuth } from './set-auth';
 import { setStorageLocation } from './set-storage-location';
 import { startBrowser } from './start-browser';
 import { PixelArt } from './types';
 
 
-const drawPixelArt = async (pixelArt: PixelArt) => {
+const drawPixelArt = async (pixelArt: PixelArt, maxPixelsToPaint?: number) => {
 
     const { page } = await startBrowser()
     await setAuth(page)
 
     await page.goto('https://wplace.live/');
-    await setStorageLocation(page)
 
-    await new Promise(r => setTimeout(r, 3000));
+    // Get charges count from API
+    const chargesCount = await getChargesCount(page);
+    console.log(`Available charges: ${chargesCount}`);
+
+    await setStorageLocation(page)
+    await new Promise(r => setTimeout(r, 5000));
+
+    // Use charges count as maxPixelsToPaint if not specified
+    const actualMaxPixels = maxPixelsToPaint || chargesCount;
+    console.log(`Will use ${actualMaxPixels} as max pixels to paint`);
 
     await openPaintPalletStart(page)
 
@@ -37,12 +45,22 @@ const drawPixelArt = async (pixelArt: PixelArt) => {
 
     console.log(`Canvas dimensions: x=${canvasBox.x}, y=${canvasBox.y}, width=${canvasBox.width}, height=${canvasBox.height}`);
 
-    for (const pixel of pixelArt.pixels) {
-        if (pixel.painted) {
-            console.log(`Skipping already painted pixel: (${pixel.x}, ${pixel.y})`);
-            continue;
-        }
+    // Filter unpainted pixels
+    const unpaintedPixels = pixelArt.pixels.filter(p => !p.painted);
+    console.log(`Found ${unpaintedPixels.length} unpainted pixels`);
 
+    // Limit the number of pixels to paint based on charges count
+    const pixelsToPaint = unpaintedPixels.slice(0, actualMaxPixels);
+    
+    if (pixelsToPaint.length === 0) {
+        console.log('No pixels to paint! All pixels are already painted.');
+        return;
+    }
+
+    console.log(`Will paint ${pixelsToPaint.length} pixels in this session`);
+
+    let paintedCount = 0;
+    for (const pixel of pixelsToPaint) {
         console.log(`Processing pixel: (${pixel.x}, ${pixel.y}) with color ${pixel.color}`);
 
         await selectColor({
@@ -62,8 +80,14 @@ const drawPixelArt = async (pixelArt: PixelArt) => {
         
         // Mark pixel as painted
         pixel.painted = true;
+        paintedCount++;
+        
+        // Show progress
+        console.log(`Progress: ${paintedCount}/${pixelsToPaint.length} pixels painted`);
         // await new Promise(r => setTimeout(r, 300));
     }
+
+    console.log(`Session completed! Painted ${paintedCount} pixels.`);
 
     await confirmPaint(page)
     
@@ -105,6 +129,9 @@ const teste = async () => {
     console.log(`Painted pixels: ${pixelArt.pixels.filter(p => p.painted).length}`);
     console.log(`Unpainted pixels: ${pixelArt.pixels.filter(p => !p.painted).length}`);
 
+    // Let the drawPixelArt function determine maxPixelsToPaint from charges.count
+    console.log(`\nStarting painting session with charges-based limit...`);
+    
     drawPixelArt(pixelArt);
 }
 
