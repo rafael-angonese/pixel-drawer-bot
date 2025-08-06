@@ -1,6 +1,7 @@
 
 import * as fs from 'fs';
 import { confirmPaint } from './confirm-paint';
+import { env } from './env';
 import { getCanvas } from './get-canvas';
 import { imageToPixelArt, savePixelArtToJson } from './image-to-pixelart';
 import { openPaintPalletStart } from './paint-button-start';
@@ -10,11 +11,10 @@ import { setStorageLocation } from './set-storage-location';
 import { startBrowser } from './start-browser';
 import { PixelArt } from './types';
 
+const drawPixelArt = async (pixelArt: PixelArt, token: string, maxPixelsToPaint?: number) => {
 
-const drawPixelArt = async (pixelArt: PixelArt, maxPixelsToPaint?: number) => {
-
-    const { page } = await startBrowser()
-    await setAuth(page)
+    const { page, browser } = await startBrowser()
+    await setAuth(page, token)
 
     await page.goto('https://wplace.live/');
 
@@ -23,7 +23,8 @@ const drawPixelArt = async (pixelArt: PixelArt, maxPixelsToPaint?: number) => {
     console.log(`Available charges: ${chargesCount}`);
 
     await setStorageLocation(page)
-    await new Promise(r => setTimeout(r, 5000));
+    await page.reload()
+    await new Promise(r => setTimeout(r, 3000));
 
     // Use charges count as maxPixelsToPaint if not specified
     const actualMaxPixels = maxPixelsToPaint || chargesCount;
@@ -96,7 +97,7 @@ const drawPixelArt = async (pixelArt: PixelArt, maxPixelsToPaint?: number) => {
     const jsonPath = `${outputDir}/teste_pixelart.json`;
     savePixelArtToJson(pixelArt, jsonPath);
     
-    // await browser.close();
+    await browser.close();
 }
 
 
@@ -129,10 +130,29 @@ const teste = async () => {
     console.log(`Painted pixels: ${pixelArt.pixels.filter(p => p.painted).length}`);
     console.log(`Unpainted pixels: ${pixelArt.pixels.filter(p => !p.painted).length}`);
 
-    // Let the drawPixelArt function determine maxPixelsToPaint from charges.count
-    console.log(`\nStarting painting session with charges-based limit...`);
+    // Run for each token/account
+    console.log(`\nFound ${env.tokens.length} tokens to process...`);
     
-    drawPixelArt(pixelArt);
+    for (let i = 0; i < env.tokens.length; i++) {
+        const token = env.tokens[i];
+        console.log(`\n=== Processing Account ${i + 1}/${env.tokens.length} ===`);
+        console.log(`Token: ${token}`);
+        
+        try {
+            await drawPixelArt(pixelArt, token);
+            console.log(`✓ Account ${i + 1} completed successfully`);
+        } catch (error) {
+            console.error(`✗ Error processing account ${i + 1}:`, error);
+        }
+        
+        // Add a small delay between accounts
+        if (i < env.tokens.length - 1) {
+            console.log('Waiting 5 seconds before next account...');
+            await new Promise(r => setTimeout(r, 5000));
+        }
+    }
+    
+    console.log('\n=== All accounts processed ===');
 }
 
 teste()
