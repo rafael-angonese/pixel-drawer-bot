@@ -155,6 +155,40 @@ const teste = async () => {
     console.log('\n=== All accounts processed ===');
 }
 
-teste()
+// Configuração do intervalo de execução (em minutos)
+const EXECUTION_INTERVAL_MINUTES = 15;
 
-// drawPixelArt(heartPixelArt);
+const runInfiniteLoop = async () => {
+    console.log(`🚀 Iniciando execução em loop infinito`);
+    console.log(`⏰ Intervalo configurado: ${EXECUTION_INTERVAL_MINUTES} minutos`);
+    
+    let executionCount = 0;
+    
+    while (true) {
+        executionCount++;
+        console.log(`\n🔄 === EXECUÇÃO #${executionCount} ===`);
+        console.log(`📅 ${new Date().toLocaleString()}`);
+        
+        try {
+            await teste();
+            console.log(`✅ Execução #${executionCount} concluída com sucesso`);
+        } catch (error) {
+            console.error(`❌ Erro na execução #${executionCount}:`, error);
+        }
+        
+        console.log(`⏳ Aguardando ${EXECUTION_INTERVAL_MINUTES} minutos até a próxima execução...`);
+        console.log(`⏰ Próxima execução: ${new Date(Date.now() + EXECUTION_INTERVAL_MINUTES * 60 * 1000).toLocaleString()}`);
+        
+        // Aguarda o intervalo configurado
+        await new Promise(resolve => setTimeout(resolve, EXECUTION_INTERVAL_MINUTES * 60 * 1000));
+    }
+}
+
+// Executa o loop infinito
+runInfiniteLoop().catch(error => {
+    console.error('❌ Erro fatal no loop infinito:', error);
+    process.exit(1);
+});
+
+// Comentando a execução única para usar o loop infinito
+// teste()
