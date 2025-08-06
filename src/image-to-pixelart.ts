@@ -1,4 +1,6 @@
 import { createCanvas, loadImage } from 'canvas';
+import * as fs from 'fs';
+import * as path from 'path';
 import { Pixel, PixelArt } from './types';
 
 // Cores disponíveis no formato RGB
@@ -77,7 +79,7 @@ function findClosestColor(r: number, g: number, b: number): number {
  * Aplica dithering Floyd-Steinberg para melhorar a qualidade da conversão
  */
 function applyDithering(
-    imageData: ImageData,
+    imageData: any,
     width: number,
     height: number,
     x: number,
@@ -106,7 +108,7 @@ function applyDithering(
 }
 
 /**
- * Converte uma imagem para PixelArt
+ * Converte uma imagem para PixelArt e salva em arquivo JSON
  */
 export async function imageToPixelArt(options: ImageToPixelArtOptions): Promise<PixelArt> {
     const { imagePath, maxWidth = 100, maxHeight = 100, dithering = true } = options;
@@ -133,7 +135,7 @@ export async function imageToPixelArt(options: ImageToPixelArtOptions): Promise<
     ctx.drawImage(image, 0, 0, targetWidth, targetHeight);
 
     // Obtém os dados da imagem
-    const imageData = ctx.getImageData(0, 0, targetWidth, targetHeight);
+    const imageData: any = ctx.getImageData(0, 0, targetWidth, targetHeight);
     const pixels: Pixel[] = [];
 
     // Processa cada pixel
@@ -164,16 +166,35 @@ export async function imageToPixelArt(options: ImageToPixelArtOptions): Promise<
                 applyDithering(imageData, targetWidth, targetHeight, x, y, errorR, errorG, errorB);
             }
 
-            // Adiciona o pixel à lista
+            // Adiciona o pixel à lista com flag painted = false
             pixels.push({
                 x,
                 y,
-                color: closestColorIndex
+                color: closestColorIndex,
+                painted: false
             });
         }
     }
 
-    return { pixels };
+    const pixelArt: PixelArt = { pixels };
+
+    // Salva o pixel art em arquivo JSON
+    const outputDir = path.dirname(imagePath);
+    const baseName = path.basename(imagePath, path.extname(imagePath));
+    const jsonPath = path.join(outputDir, `${baseName}_pixelart.json`);
+    
+    fs.writeFileSync(jsonPath, JSON.stringify(pixelArt, null, 2));
+    console.log(`Pixel art salvo em: ${jsonPath}`);
+
+    return pixelArt;
+}
+
+/**
+ * Salva o pixel art atualizado com flags painted em arquivo JSON
+ */
+export function savePixelArtToJson(pixelArt: PixelArt, outputPath: string): void {
+    fs.writeFileSync(outputPath, JSON.stringify(pixelArt, null, 2));
+    console.log(`Pixel art atualizado salvo em: ${outputPath}`);
 }
 
 /**
@@ -198,7 +219,6 @@ export async function saveProcessedImage(
     }
 
     // Salva a imagem
-    const fs = require('fs');
     const buffer = canvas.toBuffer('image/png');
     fs.writeFileSync(outputPath, buffer);
 } 
