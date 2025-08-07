@@ -178,31 +178,19 @@ export async function imageToPixelArt(options: ImageToPixelArtOptions): Promise<
 
     const pixelArt: PixelArt = { pixels };
 
-    // Salva o pixel art em arquivo JSON
-    const outputDir = path.dirname(imagePath);
-    const baseName = path.basename(imagePath, path.extname(imagePath));
-    const jsonPath = path.join(outputDir, `${baseName}_pixelart.json`);
-    
-    fs.writeFileSync(jsonPath, JSON.stringify(pixelArt, null, 2));
-    console.log(`Pixel art saved to: ${jsonPath}`);
-
+    savePixelArtToJson(pixelArt)
     return pixelArt;
 }
 
-/**
- * Salva o pixel art atualizado com flags painted em arquivo JSON
- */
-export function savePixelArtToJson(pixelArt: PixelArt, outputPath: string): void {
+
+export function savePixelArtToJson(pixelArt: PixelArt): void {
+    const outputPath = './assets/pixelart.json'
     fs.writeFileSync(outputPath, JSON.stringify(pixelArt, null, 2));
     console.log(`Updated pixel art saved to: ${outputPath}`);
 }
 
-/**
- * Função auxiliar para salvar a imagem processada (útil para debug)
- */
 export async function saveProcessedImage(
     imagePath: string,
-    outputPath: string,
     maxWidth: number = 100,
     maxHeight: number = 100
 ): Promise<void> {
@@ -211,14 +199,12 @@ export async function saveProcessedImage(
     const canvas = createCanvas(maxWidth, maxHeight);
     const ctx = canvas.getContext('2d');
 
-    // Desenha cada pixel
     for (const pixel of pixelArt.pixels) {
         const color = availableColors[pixel.color];
         ctx.fillStyle = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
         ctx.fillRect(pixel.x, pixel.y, 1, 1);
     }
 
-    // Salva a imagem
     const buffer = canvas.toBuffer('image/png');
-    fs.writeFileSync(outputPath, buffer);
+    fs.writeFileSync('./assets/preview.png', buffer);
 } 

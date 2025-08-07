@@ -3,7 +3,7 @@ import { imageToPixelArt, saveProcessedImage } from "./image-to-pixelart";
 import { PixelArt } from "./types";
 
 export const getCurrentPixelArt = async () => {
-    const jsonPath = './assets/teste_pixelart.json'
+    const jsonPath = './assets/pixelart.json'
     let pixelArt: PixelArt | null = null;
 
     if (fs.existsSync(jsonPath)) {
@@ -17,15 +17,14 @@ export const getCurrentPixelArt = async () => {
         console.log('Generating pixel art from image...');
 
         pixelArt = await imageToPixelArt({
-            imagePath: './assets/teste.png',
+            imagePath: './assets/input.png',
             maxWidth: 90,
             maxHeight: 90,
             dithering: true
         });
 
         await saveProcessedImage(
-            './assets/teste.png',
-            './assets/preview.png',
+            './assets/input.png',
             90,
             90
         );

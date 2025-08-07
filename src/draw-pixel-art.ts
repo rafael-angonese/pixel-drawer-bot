@@ -85,9 +85,7 @@ export const drawPixelArt = async (pixelArt: PixelArt, token: string) => {
 
     await confirmPaint(page)
 
-    const outputDir = './assets';
-    const jsonPath = `${outputDir}/teste_pixelart.json`;
-    savePixelArtToJson(pixelArt, jsonPath);
+    savePixelArtToJson(pixelArt);
 
     await browser.close();
 }
