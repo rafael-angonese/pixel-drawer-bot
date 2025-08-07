@@ -12,6 +12,20 @@ const envSchema = z.object({
         }
         return parsed;
     }),
+    LATITUDE: z.string().transform((val) => {
+        const parsed = parseFloat(val);
+        if (isNaN(parsed)) {
+            throw new Error('LATITUDE must be a valid number');
+        }
+        return parsed;
+    }),
+    LONGITUDE: z.string().transform((val) => {
+        const parsed = parseFloat(val);
+        if (isNaN(parsed)) {
+            throw new Error('LONGITUDE must be a valid number');
+        }
+        return parsed;
+    }),
 });
 
 const parseEnv = () => {
@@ -31,4 +45,6 @@ const validatedEnv = parseEnv();
 export const env = {
     tokens: validatedEnv.TOKEN.split(',').map(token => token.trim()).filter(token => token.length > 0),
     EXECUTION_INTERVAL_MINUTES: validatedEnv.EXECUTION_INTERVAL_MINUTES,
+    LATITUDE: validatedEnv.LATITUDE,
+    LONGITUDE: validatedEnv.LONGITUDE,
 } as const;
