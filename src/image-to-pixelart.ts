@@ -184,7 +184,7 @@ export async function imageToPixelArt(options: ImageToPixelArtOptions): Promise<
     const jsonPath = path.join(outputDir, `${baseName}_pixelart.json`);
     
     fs.writeFileSync(jsonPath, JSON.stringify(pixelArt, null, 2));
-    console.log(`Pixel art salvo em: ${jsonPath}`);
+    console.log(`Pixel art saved to: ${jsonPath}`);
 
     return pixelArt;
 }
@@ -194,7 +194,7 @@ export async function imageToPixelArt(options: ImageToPixelArtOptions): Promise<
  */
 export function savePixelArtToJson(pixelArt: PixelArt, outputPath: string): void {
     fs.writeFileSync(outputPath, JSON.stringify(pixelArt, null, 2));
-    console.log(`Pixel art atualizado salvo em: ${outputPath}`);
+    console.log(`Updated pixel art saved to: ${outputPath}`);
 }
 
 /**
