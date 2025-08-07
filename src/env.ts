@@ -27,6 +27,20 @@ const envSchema = z.object({
         return parsed;
     }),
     INPUT_FILE_NAME: z.string().optional().default('input.png'),
+    MAX_IMAGE_WIDTH: z.string().optional().default('100').transform((val) => {
+        const parsed = parseInt(val, 10);
+        if (isNaN(parsed) || parsed <= 0) {
+            throw new Error('MAX_IMAGE_WIDTH must be a positive number');
+        }
+        return parsed;
+    }),
+    MAX_IMAGE_HEIGHT: z.string().optional().default('100').transform((val) => {
+        const parsed = parseInt(val, 10);
+        if (isNaN(parsed) || parsed <= 0) {
+            throw new Error('MAX_IMAGE_HEIGHT must be a positive number');
+        }
+        return parsed;
+    }),
 });
 
 const parseEnv = () => {
@@ -49,4 +63,6 @@ export const env = {
     LATITUDE: validatedEnv.LATITUDE,
     LONGITUDE: validatedEnv.LONGITUDE,
     INPUT_FILE_NAME: validatedEnv.INPUT_FILE_NAME,
+    MAX_IMAGE_WIDTH: validatedEnv.MAX_IMAGE_WIDTH,
+    MAX_IMAGE_HEIGHT: validatedEnv.MAX_IMAGE_HEIGHT,
 } as const;

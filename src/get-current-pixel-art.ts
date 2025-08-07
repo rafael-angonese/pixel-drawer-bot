@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { imageToPixelArt, saveProcessedImage } from "./image-to-pixelart";
 import { PixelArt } from "./types";
 import { INPUT_PATH, PIXEL_ART_PATH } from './constants';
+import { env } from './env';
 
 export const getCurrentPixelArt = async () => {
     let pixelArt: PixelArt | null = null;
@@ -18,16 +19,17 @@ export const getCurrentPixelArt = async () => {
 
         pixelArt = await imageToPixelArt({
             imagePath: INPUT_PATH,
-            maxWidth: 90,
-            maxHeight: 90,
+            maxWidth: env.MAX_IMAGE_WIDTH,
+            maxHeight: env.MAX_IMAGE_HEIGHT,
             dithering: true
         });
 
-        await saveProcessedImage(
-            INPUT_PATH,
-            90,
-            90
-        );
+        await saveProcessedImage({
+            imagePath: INPUT_PATH,
+            maxWidth: env.MAX_IMAGE_WIDTH,
+            maxHeight: env.MAX_IMAGE_HEIGHT,
+            dithering: true
+        });
 
         console.log('Pixel art generated and saved to JSON file.');
     }

@@ -188,12 +188,10 @@ export function savePixelArtToJson(pixelArt: PixelArt): void {
     console.log(`Updated pixel art saved to: ${PIXEL_ART_PATH}`);
 }
 
-export async function saveProcessedImage(
-    imagePath: string,
-    maxWidth: number = 100,
-    maxHeight: number = 100
-): Promise<void> {
-    const pixelArt = await imageToPixelArt({ imagePath, maxWidth, maxHeight });
+export async function saveProcessedImage(options: ImageToPixelArtOptions): Promise<void> {
+    const { imagePath, maxWidth = 100, maxHeight = 100, dithering = true } = options;
+    
+    const pixelArt = await imageToPixelArt({ imagePath, maxWidth, maxHeight, dithering });
     
     const canvas = createCanvas(maxWidth, maxHeight);
     const ctx = canvas.getContext('2d');
