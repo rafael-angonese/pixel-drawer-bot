@@ -26,6 +26,7 @@ const envSchema = z.object({
         }
         return parsed;
     }),
+    INPUT_FILE_NAME: z.string().optional().default('input.png'),
 });
 
 const parseEnv = () => {
@@ -47,4 +48,5 @@ export const env = {
     EXECUTION_INTERVAL_MINUTES: validatedEnv.EXECUTION_INTERVAL_MINUTES,
     LATITUDE: validatedEnv.LATITUDE,
     LONGITUDE: validatedEnv.LONGITUDE,
+    INPUT_FILE_NAME: validatedEnv.INPUT_FILE_NAME,
 } as const;

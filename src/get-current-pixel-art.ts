@@ -1,30 +1,30 @@
 import * as fs from 'fs';
 import { imageToPixelArt, saveProcessedImage } from "./image-to-pixelart";
 import { PixelArt } from "./types";
+import { INPUT_PATH, PIXEL_ART_PATH } from './constants';
 
 export const getCurrentPixelArt = async () => {
-    const jsonPath = './assets/pixelart.json'
     let pixelArt: PixelArt | null = null;
 
-    if (fs.existsSync(jsonPath)) {
-        const pixelArtData = fs.readFileSync(jsonPath, 'utf8');
+    if (fs.existsSync(PIXEL_ART_PATH)) {
+        const pixelArtData = fs.readFileSync(PIXEL_ART_PATH, 'utf8');
         pixelArt = JSON.parse(pixelArtData);
-        console.log(`Loaded pixel art from: ${jsonPath}`);
+        console.log(`Loaded pixel art from: ${PIXEL_ART_PATH}`);
     }
 
-    if (!fs.existsSync(jsonPath)) {
-        console.log(`JSON file not found: ${jsonPath}`);
+    if (!fs.existsSync(PIXEL_ART_PATH)) {
+        console.log(`JSON file not found: ${PIXEL_ART_PATH}`);
         console.log('Generating pixel art from image...');
 
         pixelArt = await imageToPixelArt({
-            imagePath: './assets/input.png',
+            imagePath: INPUT_PATH,
             maxWidth: 90,
             maxHeight: 90,
             dithering: true
         });
 
         await saveProcessedImage(
-            './assets/input.png',
+            INPUT_PATH,
             90,
             90
         );

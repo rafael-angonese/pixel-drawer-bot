@@ -1,6 +1,6 @@
 import { createCanvas, loadImage } from 'canvas';
 import * as fs from 'fs';
-import * as path from 'path';
+import { PIXEL_ART_PATH, PREVIEW_PATH } from './constants';
 import { Pixel, PixelArt } from './types';
 
 // Cores disponíveis no formato RGB
@@ -184,9 +184,8 @@ export async function imageToPixelArt(options: ImageToPixelArtOptions): Promise<
 
 
 export function savePixelArtToJson(pixelArt: PixelArt): void {
-    const outputPath = './assets/pixelart.json'
-    fs.writeFileSync(outputPath, JSON.stringify(pixelArt, null, 2));
-    console.log(`Updated pixel art saved to: ${outputPath}`);
+    fs.writeFileSync(PIXEL_ART_PATH, JSON.stringify(pixelArt, null, 2));
+    console.log(`Updated pixel art saved to: ${PIXEL_ART_PATH}`);
 }
 
 export async function saveProcessedImage(
@@ -206,5 +205,5 @@ export async function saveProcessedImage(
     }
 
     const buffer = canvas.toBuffer('image/png');
-    fs.writeFileSync('./assets/preview.png', buffer);
+    fs.writeFileSync(PREVIEW_PATH, buffer);
 } 
