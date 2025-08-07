@@ -1,22 +1,23 @@
 
 import { confirmPaint } from './confirm-paint';
 import { getCanvas } from './get-canvas';
+import { getChargesCount } from './get-charges-count';
 import { savePixelArtToJson } from './image-to-pixelart';
 import { openPaintPalletStart } from './paint-button-start';
 import { selectColor } from './select-color';
-import { getChargesCount, setAuth } from './set-auth';
+import { setAuth } from './set-auth';
+
 import { setStorageLocation } from './set-storage-location';
 import { startBrowser } from './start-browser';
 import { PixelArt } from './types';
 
-export const drawPixelArt = async (pixelArt: PixelArt, token: string, maxPixelsToPaint?: number) => {
+export const drawPixelArt = async (pixelArt: PixelArt, token: string) => {
 
     const { page, browser } = await startBrowser()
     await setAuth(page, token)
 
     await page.goto('https://wplace.live/');
 
-    // Get charges count from API
     const chargesCount = await getChargesCount(page);
     console.log(`Available charges: ${chargesCount}`);
 
@@ -24,9 +25,7 @@ export const drawPixelArt = async (pixelArt: PixelArt, token: string, maxPixelsT
     await page.reload()
     await new Promise(r => setTimeout(r, 3000));
 
-    // Use charges count as maxPixelsToPaint if not specified
-    const actualMaxPixels = maxPixelsToPaint || chargesCount;
-    console.log(`Will use ${actualMaxPixels} as max pixels to paint`);
+    console.log(`Will use ${chargesCount} as max pixels to paint`);
 
     await openPaintPalletStart(page)
 
@@ -44,12 +43,10 @@ export const drawPixelArt = async (pixelArt: PixelArt, token: string, maxPixelsT
 
     console.log(`Canvas dimensions: x=${canvasBox.x}, y=${canvasBox.y}, width=${canvasBox.width}, height=${canvasBox.height}`);
 
-    // Filter unpainted pixels
     const unpaintedPixels = pixelArt.pixels.filter(p => !p.painted);
     console.log(`Found ${unpaintedPixels.length} unpainted pixels`);
 
-    // Limit the number of pixels to paint based on charges count
-    const pixelsToPaint = unpaintedPixels.slice(0, actualMaxPixels);
+    const pixelsToPaint = unpaintedPixels.slice(0, chargesCount);
 
     if (pixelsToPaint.length === 0) {
         console.log('No pixels to paint! All pixels are already painted.');
@@ -77,11 +74,9 @@ export const drawPixelArt = async (pixelArt: PixelArt, token: string, maxPixelsT
         await page.mouse.click(pixelX, pixelY);
         console.log(`✓ Drew pixel at (${pixel.x}, ${pixel.y}) with color ${pixel.color}`);
 
-        // Mark pixel as painted
         pixel.painted = true;
         paintedCount++;
 
-        // Show progress
         console.log(`Progress: ${paintedCount}/${pixelsToPaint.length} pixels painted`);
         // await new Promise(r => setTimeout(r, 300));
     }
@@ -90,7 +85,6 @@ export const drawPixelArt = async (pixelArt: PixelArt, token: string, maxPixelsT
 
     await confirmPaint(page)
 
-    // Save updated pixel art with painted flags
     const outputDir = './assets';
     const jsonPath = `${outputDir}/teste_pixelart.json`;
     savePixelArtToJson(pixelArt, jsonPath);
