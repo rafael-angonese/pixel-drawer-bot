@@ -1,11 +1,9 @@
+import { env } from "./env";
 import { main } from "./main";
-
-const EXECUTION_INTERVAL_MINUTES = 15;
-
 
 export const runInfiniteLoop = async () => {
     console.log(`🚀 Iniciando execução em loop infinito`);
-    console.log(`⏰ Intervalo configurado: ${EXECUTION_INTERVAL_MINUTES} minutos`);
+    console.log(`⏰ Intervalo configurado: ${env.EXECUTION_INTERVAL_MINUTES} minutos`);
     
     let executionCount = 0;
     
@@ -21,10 +19,8 @@ export const runInfiniteLoop = async () => {
             console.error(`❌ Erro na execução #${executionCount}:`, error);
         }
         
-        console.log(`⏳ Aguardando ${EXECUTION_INTERVAL_MINUTES} minutos até a próxima execução...`);
-        console.log(`⏰ Próxima execução: ${new Date(Date.now() + EXECUTION_INTERVAL_MINUTES * 60 * 1000).toLocaleString()}`);
-        
-        // Aguarda o intervalo configurado
-        await new Promise(resolve => setTimeout(resolve, EXECUTION_INTERVAL_MINUTES * 60 * 1000));
+        console.log(`⏳ Aguardando ${env.EXECUTION_INTERVAL_MINUTES} minutos até a próxima execução...`);
+        console.log(`⏰ Próxima execução: ${new Date(Date.now() + env.EXECUTION_INTERVAL_MINUTES * 60 * 1000).toLocaleString()}`);
+        await new Promise(resolve => setTimeout(resolve, env.EXECUTION_INTERVAL_MINUTES * 60 * 1000));
     }
 }

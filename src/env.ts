@@ -1,6 +1,34 @@
 import { config } from 'dotenv';
+import { z } from 'zod';
+
 config();
 
+const envSchema = z.object({
+    TOKEN: z.string().min(1, 'TOKEN is required'),
+    EXECUTION_INTERVAL_MINUTES: z.string().optional().default('15').transform((val) => {
+        const parsed = parseInt(val, 10);
+        if (isNaN(parsed) || parsed <= 0) {
+            throw new Error('EXECUTION_INTERVAL_MINUTES must be a positive number');
+        }
+        return parsed;
+    }),
+});
+
+const parseEnv = () => {
+    try {
+        return envSchema.parse(process.env);
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            console.error('❌ Environment validation failed:');
+            console.error(error.message);
+        }
+        process.exit(1);
+    }
+};
+
+const validatedEnv = parseEnv();
+
 export const env = {
-    tokens: process.env.TOKEN!.split(',').map(token => token.trim()).filter(token => token.length > 0)
-}
+    tokens: validatedEnv.TOKEN.split(',').map(token => token.trim()).filter(token => token.length > 0),
+    EXECUTION_INTERVAL_MINUTES: validatedEnv.EXECUTION_INTERVAL_MINUTES,
+} as const;
